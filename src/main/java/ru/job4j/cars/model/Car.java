@@ -1,16 +1,23 @@
 package ru.job4j.cars.model;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
 @Entity
 @Table(name = "cars")
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
+    private String brand;
+
+    @ManyToOne
+    @JoinColumn(name = "model_id", foreignKey = @ForeignKey(name = "MODEL_ID_FK"))
+    private Model model;
+
+    @ManyToOne
+    @JoinColumn(name = "body_id", foreignKey = @ForeignKey(name = "BODY_ID_FK"))
+    private Body body;
 
     @ManyToOne
     @JoinColumn(name = "engine_id", foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
@@ -18,21 +25,23 @@ public class Car {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "history_owner", joinColumns = {
-            @JoinColumn(name = "driver_id", nullable = false, updatable = false)},
+            @JoinColumn(name = "user_id", nullable = false, updatable = false)},
             inverseJoinColumns = {
-            @JoinColumn(name = "car_id", nullable = false, updatable = false)})
-    private Set<Driver> drivers = new HashSet<>();
+                    @JoinColumn(name = "car_id", nullable = false, updatable = false)})
+    private Set<User> users = new HashSet<>();
 
     public Car() {
     }
 
-    public void addDriver(Driver driver) {
-        this.drivers.add(driver);
+    public void addDriver(User user) {
+        this.users.add(user);
     }
 
-    public static Car of(String name, Engine engine) {
+    public static Car of(String brand, Model model, Body body, Engine engine) {
         Car car = new Car();
-        car.name = name;
+        car.brand = brand;
+        car.model = model;
+        car.body = body;
         car.engine = engine;
         return car;
     }
@@ -45,12 +54,28 @@ public class Car {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getBrand() {
+        return brand;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
     }
 
     public Engine getEngine() {
@@ -61,12 +86,12 @@ public class Car {
         this.engine = engine;
     }
 
-    public Set<Driver> getDrivers() {
-        return drivers;
+    public Set<User> getDrivers() {
+        return users;
     }
 
-    public void setDrivers(Set<Driver> drivers) {
-        this.drivers = drivers;
+    public void setDrivers(Set<User> drivers) {
+        this.users = drivers;
     }
 
     @Override
